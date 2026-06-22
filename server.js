@@ -618,6 +618,7 @@ function serveStatic(req, res) {
 }
 
 const server = http.createServer((req, res) => {
+  if (req.url === "/healthz") return json(res, 200, { ok: true });
   if (req.url.startsWith("/api/")) return handleApi(req, res);
   return serveStatic(req, res);
 });
