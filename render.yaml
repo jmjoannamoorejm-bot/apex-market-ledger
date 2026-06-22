@@ -2,20 +2,24 @@ services:
   - type: web
     name: apex-market-ledger
     env: node
-    plan: starter
+    plan: free
     buildCommand: npm install
     startCommand: npm start
-    disk:
-      name: apex-market-ledger-data
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
       - key: NODE_ENV
         value: production
       - key: HOST
         value: 0.0.0.0
       - key: DB_PATH
-        value: /var/data/db.json
+        value: data/db.json
+      - key: GITHUB_BACKUP_TOKEN
+        sync: false
+      - key: GITHUB_BACKUP_REPO
+        sync: false
+      - key: GITHUB_BACKUP_PATH
+        value: data/render-db-backup.json
+      - key: GITHUB_BACKUP_BRANCH
+        value: main
       - key: SITE_NAME
         value: Apex Market Ledger
       - key: SESSION_SECRET

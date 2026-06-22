@@ -13,6 +13,8 @@ const PORT = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || "0.0.0.0";
 const SESSION_SECRET = process.env.SESSION_SECRET || "local-development-secret";
 const SITE_NAME = process.env.SITE_NAME || "Apex Market Ledger";
+const GITHUB_BACKUP_PATH = process.env.GITHUB_BACKUP_PATH || "data/render-db-backup.json";
+const GITHUB_BACKUP_BRANCH = process.env.GITHUB_BACKUP_BRANCH || "main";
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -28,6 +30,8 @@ const MIME = {
 };
 
 const state = loadDatabase();
+let backupTimer = null;
+let backupInFlight = false;
 
 function loadEnvFile(filePath) {
   if (!fs.existsSync(filePath)) return;
@@ -84,8 +88,109 @@ function loadDatabase() {
   }
 }
 
-function saveDatabase() {
+function saveDatabase(options = {}) {
   fs.writeFileSync(DB_PATH, JSON.stringify(state, null, 2));
+  if (options.remote !== false) scheduleRemoteBackup();
+}
+
+function githubBackupConfig() {
+  const token = process.env.GITHUB_BACKUP_TOKEN;
+  const repo = process.env.GITHUB_BACKUP_REPO;
+  if (!token || !repo || !repo.includes("/")) return null;
+  const [owner, name] = repo.split("/");
+  return { token, owner, name };
+}
+
+function githubRequest(method, requestPath, payload) {
+  const config = githubBackupConfig();
+  if (!config) return Promise.resolve(null);
+  const body = payload ? JSON.stringify(payload) : null;
+  return new Promise((resolve, reject) => {
+    const req = https.request({
+      hostname: "api.github.com",
+      path: requestPath,
+      method,
+      headers: {
+        Authorization: `Bearer ${config.token}`,
+        Accept: "application/vnd.github+json",
+        "User-Agent": "apex-market-ledger",
+        "X-GitHub-Api-Version": "2022-11-28",
+        ...(body ? { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(body) } : {})
+      },
+      timeout: 12000
+    }, (res) => {
+      let responseBody = "";
+      res.on("data", (chunk) => {
+        responseBody += chunk;
+      });
+      res.on("end", () => {
+        const parsed = responseBody ? JSON.parse(responseBody) : {};
+        if (res.statusCode >= 200 && res.statusCode < 300) return resolve(parsed);
+        if (res.statusCode === 404) return resolve(null);
+        reject(new Error(parsed.message || `GitHub backup request failed with ${res.statusCode}`));
+      });
+    });
+    req.on("error", reject);
+    req.on("timeout", () => {
+      req.destroy();
+      reject(new Error("GitHub backup request timed out"));
+    });
+    if (body) req.write(body);
+    req.end();
+  });
+}
+
+async function getRemoteBackupFile() {
+  const config = githubBackupConfig();
+  if (!config) return null;
+  const encodedPath = GITHUB_BACKUP_PATH.split("/").map(encodeURIComponent).join("/");
+  return githubRequest("GET", `/repos/${config.owner}/${config.name}/contents/${encodedPath}?ref=${encodeURIComponent(GITHUB_BACKUP_BRANCH)}`);
+}
+
+async function restoreRemoteBackup() {
+  try {
+    const file = await getRemoteBackupFile();
+    if (!file || !file.content) return false;
+    const content = Buffer.from(file.content, "base64").toString("utf8");
+    const restored = JSON.parse(content);
+    Object.keys(state).forEach((key) => delete state[key]);
+    Object.assign(state, { ...defaultDatabase(), ...restored });
+    saveDatabase({ remote: false });
+    console.log("Restored database from GitHub backup.");
+    return true;
+  } catch (error) {
+    console.warn(`GitHub backup restore skipped: ${error.message}`);
+    return false;
+  }
+}
+
+function scheduleRemoteBackup() {
+  if (!githubBackupConfig()) return;
+  clearTimeout(backupTimer);
+  backupTimer = setTimeout(() => {
+    pushRemoteBackup().catch((error) => {
+      console.warn(`GitHub backup save skipped: ${error.message}`);
+    });
+  }, 1500);
+}
+
+async function pushRemoteBackup() {
+  if (backupInFlight || !githubBackupConfig()) return;
+  backupInFlight = true;
+  try {
+    const config = githubBackupConfig();
+    const current = await getRemoteBackupFile();
+    const encodedPath = GITHUB_BACKUP_PATH.split("/").map(encodeURIComponent).join("/");
+    await githubRequest("PUT", `/repos/${config.owner}/${config.name}/contents/${encodedPath}`, {
+      message: "Update Render database backup",
+      branch: GITHUB_BACKUP_BRANCH,
+      content: Buffer.from(JSON.stringify(state, null, 2)).toString("base64"),
+      ...(current?.sha ? { sha: current.sha } : {})
+    });
+    console.log("Saved database to GitHub backup.");
+  } finally {
+    backupInFlight = false;
+  }
 }
 
 function json(res, status, payload) {
@@ -623,6 +728,8 @@ const server = http.createServer((req, res) => {
   return serveStatic(req, res);
 });
 
-server.listen(PORT, HOST, () => {
-  console.log(`${SITE_NAME} listening on http://${HOST}:${PORT}`);
+restoreRemoteBackup().finally(() => {
+  server.listen(PORT, HOST, () => {
+    console.log(`${SITE_NAME} listening on http://${HOST}:${PORT}`);
+  });
 });
