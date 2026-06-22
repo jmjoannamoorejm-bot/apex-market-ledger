@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Register / Apex Market Ledger</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
+  </head>
+  <body>
+    <header class="nav"><div class="shell nav-inner"><a class="brand" href="/"><span class="brand-mark">AL</span><span>Apex Market Ledger</span></a><nav class="nav-links"><a href="/">Home</a><a href="/about/">About</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a></nav><div class="nav-actions"><a class="btn" href="/login/">Login</a></div></div></header>
+    <main class="form-shell">
+      <div class="shell">
+        <form class="form-card" data-register-form>
+          <span class="eyebrow">Create account</span>
+          <h2>Register.</h2>
+          <div class="grid two">
+            <label class="field"><span>First name</span><input name="firstName" required></label>
+            <label class="field"><span>Last name</span><input name="lastName" required></label>
+          </div>
+          <label class="field"><span>Email</span><input name="email" type="email" required></label>
+          <label class="field"><span>Password</span><input name="password" type="password" minlength="8" required></label>
+          <div class="grid two">
+            <label class="field"><span>Phone</span><input name="phone"></label>
+            <label class="field"><span>Country</span><input name="country"></label>
+          </div>
+          <div class="grid two">
+            <label class="field"><span>Account type</span><select name="accountType"><option>Individual</option><option>Business</option><option>Trust</option></select></label>
+            <label class="field"><span>Investment goal</span><select name="investmentGoal"><option>Growth</option><option>Income</option><option>Capital preservation</option><option>Research access</option></select></label>
+          </div>
+          <button class="btn primary full">Create Account</button>
+          <p class="status" data-auth-status></p>
+        </form>
+      </div>
+    </main>
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/auth.js"></script>
+  </body>
+</html>

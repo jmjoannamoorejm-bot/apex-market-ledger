@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login / Apex Market Ledger</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
+  </head>
+  <body>
+    <header class="nav"><div class="shell nav-inner"><a class="brand" href="/"><span class="brand-mark">AL</span><span>Apex Market Ledger</span></a><nav class="nav-links"><a href="/">Home</a><a href="/about/">About</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a></nav><div class="nav-actions"><a class="btn" href="/register/">Register</a></div></div></header>
+    <main class="form-shell">
+      <div class="shell">
+        <form class="form-card" data-login-form>
+          <span class="eyebrow">Account access</span>
+          <h2>Login.</h2>
+          <label class="field"><span>Email</span><input name="email" type="email" required></label>
+          <label class="field"><span>Password</span><input name="password" type="password" required></label>
+          <button class="btn primary full">Login</button>
+          <p class="status" data-auth-status></p>
+        </form>
+      </div>
+    </main>
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/auth.js"></script>
+  </body>
+</html>

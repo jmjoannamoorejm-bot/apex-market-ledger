@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: apex-market-ledger
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    disk:
+      name: apex-market-ledger-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: DB_PATH
+        value: /var/data/db.json
+      - key: SITE_NAME
+        value: Apex Market Ledger
+      - key: SESSION_SECRET
+        sync: false
+      - key: WALLET_ENCRYPTION_KEY
+        sync: false
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: COMPANY_EMAIL
+        sync: false
+      - key: COMPANY_PHONE
+        sync: false
+      - key: COMPANY_ADDRESS
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM_EMAIL
+        sync: false

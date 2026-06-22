@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Contact / Apex Market Ledger</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
+  </head>
+  <body>
+    <header class="nav"><div class="shell nav-inner"><a class="brand" href="/"><span class="brand-mark">AL</span><span>Apex Market Ledger</span></a><nav class="nav-links"><a href="/">Home</a><a href="/about/">About</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a></nav><div class="nav-actions"><a class="btn" href="/login/">Login</a><a class="btn primary" href="/register/">Register</a></div></div></header>
+    <main class="form-shell">
+      <div class="shell">
+        <form class="form-card" data-contact-form>
+          <span class="eyebrow">Support</span>
+          <h2>Contact support.</h2>
+          <p class="muted">Email: managementwilliwheyx@gmail.com<br>Phone: +1 (720) 506-9106</p>
+          <label class="field"><span>Name</span><input name="name" required></label>
+          <label class="field"><span>Email</span><input name="email" type="email" required></label>
+          <label class="field"><span>Message</span><textarea name="message" required></textarea></label>
+          <button class="btn primary full">Send Message</button>
+          <p class="status" data-contact-status></p>
+        </form>
+      </div>
+    </main>
+    <footer class="footer"><div class="shell">Apex Market Ledger</div></footer>
+    <script src="/assets/js/app.js"></script>
+    <script>
+      document.querySelector("[data-contact-form]").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          await api("/api/support", { method: "POST", body: JSON.stringify(Object.fromEntries(new FormData(event.currentTarget).entries())) });
+          setStatus("[data-contact-status]", "Message sent.");
+          event.currentTarget.reset();
+        } catch (error) {
+          setStatus("[data-contact-status]", error.message, false);
+        }
+      });
+    </script>
+  </body>
+</html>

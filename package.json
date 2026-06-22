@@ -1,0 +1,12 @@
+{
+  "name": "apex-market-ledger",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Lightweight market dashboard application.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

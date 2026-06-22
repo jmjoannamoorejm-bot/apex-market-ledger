@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin / Apex Market Ledger</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
+  </head>
+  <body>
+    <header class="nav">
+      <div class="shell nav-inner">
+        <a class="brand" href="/"><span class="brand-mark">AL</span><span>Apex Market Ledger</span></a>
+        <nav class="nav-links"><a href="/dashboard/">Dashboard</a><a href="/admin/">Admin</a></nav>
+      </div>
+    </header>
+
+    <main class="admin-shell">
+      <div class="shell">
+        <section class="form-card" data-admin-login>
+          <span class="eyebrow">Admin</span>
+          <h2>Admin login.</h2>
+          <form data-admin-login-form>
+            <label class="field"><span>Username</span><input name="username" required></label>
+            <label class="field"><span>Password</span><input name="password" type="password" required></label>
+            <button class="btn primary full">Login</button>
+          </form>
+          <p class="status" data-admin-login-status></p>
+        </section>
+
+        <section class="hidden" data-admin-app>
+          <div class="section-head">
+            <span class="eyebrow">Admin console</span>
+            <h1 style="font-size: clamp(2.5rem, 7vw, 5rem)">Site controls.</h1>
+            <p class="status" data-admin-status></p>
+          </div>
+
+          <div class="grid five">
+            <article class="card kpi">Users<strong data-admin-users>0</strong></article>
+            <article class="card kpi">Pending KYC<strong data-admin-kyc>0</strong></article>
+            <article class="card kpi">Pending Deposits<strong data-admin-deposits>0</strong></article>
+            <article class="card kpi">Pending Withdrawals<strong data-admin-withdrawals>0</strong></article>
+            <article class="card kpi">Total Balance<strong data-admin-balance>$0.00</strong></article>
+          </div>
+
+          <div class="grid two" style="margin-top: 18px">
+            <section class="panel">
+              <h2>Wallet settings</h2>
+              <form data-wallet-form>
+                <label class="field"><span>Wallet enabled</span><input name="walletEnabled" type="checkbox"></label>
+                <label class="field"><span>Asset</span><input name="asset" placeholder="USDT, BTC, ETH, SOL"></label>
+                <label class="field"><span>Network</span><input name="network" placeholder="TRC20, ERC20, BTC, Solana"></label>
+                <label class="field"><span>Wallet label</span><input name="label"></label>
+                <label class="field"><span>Wallet address</span><input name="address"></label>
+                <button class="btn primary">Update Wallet</button>
+              </form>
+            </section>
+
+            <section class="panel">
+              <h2>System toggles</h2>
+              <form data-system-form>
+                <label class="field"><span><input name="system_deposits" type="checkbox"> Deposits</span></label>
+                <label class="field"><span><input name="system_withdrawals" type="checkbox"> Withdrawals</span></label>
+                <label class="field"><span><input name="system_investments" type="checkbox"> Investments</span></label>
+                <label class="field"><span><input name="system_kyc" type="checkbox"> KYC</span></label>
+                <label class="field"><span><input name="system_support" type="checkbox"> Support</span></label>
+                <button class="btn primary">Apply Settings</button>
+              </form>
+            </section>
+          </div>
+
+          <section class="panel">
+            <h2>Users</h2>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>User</th><th>Status</th><th>Deposits</th><th>Active</th><th>Profit</th><th>Available</th><th>Control</th></tr></thead>
+                <tbody data-admin-user-rows></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h2>Deposit requests</h2>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>ID</th><th>User</th><th>Amount</th><th>Status</th><th>Update</th></tr></thead>
+                <tbody data-admin-deposit-rows></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h2>Withdrawal requests</h2>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>ID</th><th>User</th><th>Amount</th><th>Status</th><th>Update</th></tr></thead>
+                <tbody data-admin-withdrawal-rows></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h2>Support messages</h2>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>ID</th><th>Sender</th><th>Message</th><th>Status</th><th>Update</th></tr></thead>
+                <tbody data-admin-message-rows></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+      </div>
+    </main>
+
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/admin.js"></script>
+  </body>
+</html>

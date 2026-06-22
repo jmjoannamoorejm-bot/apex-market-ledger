@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard / Apex Market Ledger</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
+  </head>
+  <body>
+    <header class="nav">
+      <div class="shell nav-inner">
+        <a class="brand" href="/"><span class="brand-mark">AL</span><span>Apex Market Ledger</span></a>
+        <nav class="nav-links">
+          <a href="/dashboard/">Dashboard</a>
+          <a href="/contact/">Support</a>
+        </nav>
+        <div class="nav-actions"><a class="btn" href="/admin/">Admin</a></div>
+      </div>
+    </header>
+
+    <main class="dashboard-shell">
+      <div class="shell">
+        <div class="section-head">
+          <span class="eyebrow">Investor console</span>
+          <h1 style="font-size: clamp(2.5rem, 7vw, 5rem)">Welcome, <span data-user-name>Investor</span>.</h1>
+          <p class="muted">Email: <strong data-email-status>Checking</strong> / KYC: <strong data-kyc-status>Checking</strong></p>
+        </div>
+
+        <section class="grid four">
+          <article class="card kpi">Total Deposits<strong data-total-deposits>$0.00</strong></article>
+          <article class="card kpi">Active Investments<strong data-active-investments>$0.00</strong></article>
+          <article class="card kpi">Realized Profit<strong data-realized-profit>$0.00</strong></article>
+          <article class="card kpi">Available Balance<strong data-available-balance>$0.00</strong></article>
+        </section>
+
+        <div class="toolbar">
+          <button class="btn primary" data-open-panel="deposit">Add Funds</button>
+          <button class="btn" data-open-panel="withdraw">Withdraw</button>
+          <button class="btn" data-open-panel="kyc">KYC Review</button>
+          <button class="btn" data-open-panel="verify">Verify Email</button>
+        </div>
+
+        <section class="panel" data-panel="deposit">
+          <h2>Add funds</h2>
+          <div class="wallet-box">
+            <strong>Deposit Wallet</strong>
+            <p><strong>Asset:</strong> <span data-wallet-asset>Loading</span></p>
+            <p><strong>Network:</strong> <span data-wallet-network>Loading</span></p>
+            <p><strong>Address:</strong> <span class="mono" data-wallet-address>Loading</span></p>
+            <button class="btn" type="button" data-copy-wallet>Copy Address</button>
+          </div>
+          <form data-deposit-form style="margin-top: 18px">
+            <label class="field"><span>Amount</span><input name="amount" type="number" min="1" step="0.01" required></label>
+            <label class="field"><span>Reference / transaction note</span><input name="txReference" placeholder="Reference for admin review"></label>
+            <button class="btn primary">Submit Deposit Request</button>
+          </form>
+          <p class="status" data-deposit-status></p>
+        </section>
+
+        <section class="panel hidden" data-panel="withdraw">
+          <h2>Withdraw funds</h2>
+          <p class="muted">Request a withdrawal code, then choose bank or crypto destination.</p>
+          <button class="btn" type="button" data-send-withdrawal-code>Send Withdrawal Code</button>
+          <form data-withdraw-form style="margin-top: 18px">
+            <div class="grid two">
+              <label class="field"><span>Amount</span><input name="amount" type="number" min="1" step="0.01" required></label>
+              <label class="field"><span>Withdrawal code</span><input name="code" inputmode="numeric" required></label>
+            </div>
+            <label class="field"><span>Destination type</span><select name="method"><option value="crypto">Crypto wallet</option><option value="bank">Bank account</option></select></label>
+            <div data-crypto-fields>
+              <div class="grid two">
+                <label class="field"><span>Asset</span><input name="asset" placeholder="USDT, BTC, ETH"></label>
+                <label class="field"><span>Network</span><input name="network" placeholder="TRC20, ERC20, BTC"></label>
+              </div>
+              <label class="field"><span>Wallet address</span><input name="walletAddress"></label>
+            </div>
+            <div class="hidden" data-bank-fields>
+              <div class="grid two">
+                <label class="field"><span>Account name</span><input name="accountName"></label>
+                <label class="field"><span>Bank name</span><input name="bankName"></label>
+              </div>
+              <div class="grid two">
+                <label class="field"><span>Account number</span><input name="accountNumber"></label>
+                <label class="field"><span>Routing / sort code</span><input name="routingNumber"></label>
+              </div>
+            </div>
+            <button class="btn primary">Submit Withdrawal Request</button>
+          </form>
+          <p class="status" data-withdraw-status></p>
+        </section>
+
+        <section class="panel hidden" data-panel="kyc">
+          <h2>KYC review</h2>
+          <form data-kyc-form>
+            <div class="grid two">
+              <label class="field"><span>Legal name</span><input name="legalName" required></label>
+              <label class="field"><span>Date of birth</span><input name="dateOfBirth" type="date" required></label>
+            </div>
+            <label class="field"><span>Residential address</span><input name="address" required></label>
+            <div class="grid four">
+              <label class="field"><span>City</span><input name="city"></label>
+              <label class="field"><span>State</span><input name="state"></label>
+              <label class="field"><span>Postal code</span><input name="postalCode"></label>
+              <label class="field"><span>Country</span><input name="country"></label>
+            </div>
+            <div class="grid two">
+              <label class="field"><span>ID type</span><select name="idType"><option>Passport</option><option>Driver license</option><option>National ID</option></select></label>
+              <label class="field"><span>ID number</span><input name="idNumber"></label>
+            </div>
+            <label class="field"><span>Proof of address note</span><input name="proofOfAddress" placeholder="Utility bill, bank statement, lease"></label>
+            <label class="field"><span>Identity review note</span><textarea name="identityNote" placeholder="Document references or review notes"></textarea></label>
+            <button class="btn primary">Submit KYC</button>
+          </form>
+          <p class="status" data-kyc-submit-status></p>
+        </section>
+
+        <section class="panel hidden" data-panel="verify">
+          <h2>Email verification</h2>
+          <button class="btn" type="button" data-send-email-code>Send Code</button>
+          <form data-verify-form style="margin-top: 18px">
+            <label class="field"><span>Code</span><input name="code" inputmode="numeric" required></label>
+            <button class="btn primary">Verify Email</button>
+          </form>
+          <p class="status" data-verify-status></p>
+        </section>
+      </div>
+    </main>
+
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/dashboard.js"></script>
+  </body>
+</html>
