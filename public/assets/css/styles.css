@@ -380,6 +380,57 @@ h3 {
   color: rgba(255, 255, 255, 0.72);
 }
 
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  gap: 28px;
+  align-items: flex-start;
+}
+
+.footer strong {
+  display: block;
+  color: var(--white);
+  font-family: var(--heading);
+  font-size: 1.05rem;
+}
+
+.footer-note {
+  margin: 8px 0 0;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.footer-contact {
+  display: grid;
+  gap: 12px;
+  min-width: min(100%, 360px);
+}
+
+.footer-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.82);
+  font-weight: 800;
+}
+
+.footer-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--red);
+}
+
+.footer-icon svg {
+  width: 19px;
+  height: 19px;
+  fill: currentColor;
+}
+
 .form-shell,
 .dashboard-shell,
 .admin-shell {
@@ -545,6 +596,10 @@ td {
 
   .section {
     padding: 64px 0;
+  }
+
+  .footer-inner {
+    flex-direction: column;
   }
 
   .media {
