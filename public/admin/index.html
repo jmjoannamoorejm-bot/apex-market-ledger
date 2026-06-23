@@ -32,6 +32,7 @@
           <div class="section-head">
             <span class="eyebrow">Admin console</span>
             <h1 style="font-size: clamp(2.5rem, 7vw, 5rem)">Site controls.</h1>
+            <p class="admin-help">Use this dashboard to manage users, balances, wallet routing, market visibility, support messages, and operational review.</p>
             <p class="status" data-admin-status></p>
           </div>
 
@@ -46,24 +47,26 @@
           <div class="grid two" style="margin-top: 18px">
             <section class="panel">
               <h2>Wallet settings</h2>
+              <p class="admin-help">Enter the deposit wallet details users will see when they add funds. Change the asset and network whenever your treasury route changes.</p>
               <form data-wallet-form>
-                <label class="field"><span>Wallet enabled</span><input name="walletEnabled" type="checkbox"></label>
-                <label class="field"><span>Asset</span><input name="asset" placeholder="USDT, BTC, ETH, SOL"></label>
-                <label class="field"><span>Network</span><input name="network" placeholder="TRC20, ERC20, BTC, Solana"></label>
-                <label class="field"><span>Wallet label</span><input name="label"></label>
-                <label class="field"><span>Wallet address</span><input name="address"></label>
+                <label class="field"><span>Wallet enabled</span><small>Turn this off when you do not want users submitting deposit requests.</small><input name="walletEnabled" type="checkbox"></label>
+                <label class="field"><span>Asset</span><small>The crypto asset users should send, for example USDT, BTC, ETH, or SOL.</small><input name="asset" placeholder="USDT, BTC, ETH, SOL"></label>
+                <label class="field"><span>Network</span><small>The transfer network users must select before sending funds.</small><input name="network" placeholder="TRC20, ERC20, BTC, Solana"></label>
+                <label class="field"><span>Wallet label</span><small>A short internal/display name for this receiving wallet.</small><input name="label"></label>
+                <label class="field"><span>Wallet address</span><small>The exact wallet address displayed to users on the Add Funds screen.</small><input name="address"></label>
                 <button class="btn primary">Update Wallet</button>
               </form>
             </section>
 
             <section class="panel">
               <h2>System toggles</h2>
+              <p class="admin-help">Use these switches to temporarily open or pause major user actions without editing code.</p>
               <form data-system-form>
-                <label class="field"><span><input name="system_deposits" type="checkbox"> Deposits</span></label>
-                <label class="field"><span><input name="system_withdrawals" type="checkbox"> Withdrawals</span></label>
-                <label class="field"><span><input name="system_investments" type="checkbox"> Investments</span></label>
-                <label class="field"><span><input name="system_kyc" type="checkbox"> KYC</span></label>
-                <label class="field"><span><input name="system_support" type="checkbox"> Support</span></label>
+                <label class="field"><span><input name="system_deposits" type="checkbox"> Deposits</span><small>Allows users to submit new deposit requests.</small></label>
+                <label class="field"><span><input name="system_withdrawals" type="checkbox"> Withdrawals</span><small>Allows users to request withdrawals and withdrawal codes.</small></label>
+                <label class="field"><span><input name="system_investments" type="checkbox"> Investments</span><small>Keeps investment-related screens and balances active.</small></label>
+                <label class="field"><span><input name="system_kyc" type="checkbox"> KYC</span><small>Allows users to submit identity review information.</small></label>
+                <label class="field"><span><input name="system_support" type="checkbox"> Support</span><small>Keeps support message intake available.</small></label>
                 <button class="btn primary">Apply Settings</button>
               </form>
             </section>
@@ -71,6 +74,7 @@
 
           <section class="panel">
             <h2>Backup status</h2>
+            <p class="admin-help">Shows whether the free Render data backup is connected to GitHub and when the app last saved or restored account data.</p>
             <div class="grid four">
               <article class="card"><span class="eyebrow">Configured</span><h3 data-backup-configured>No</h3></article>
               <article class="card"><span class="eyebrow">Last save</span><h3 data-backup-save>-</h3></article>
@@ -81,6 +85,7 @@
 
           <section class="panel">
             <h2>Project review score</h2>
+            <p class="admin-help">Use this to grade how complete and realistic the platform feels during review or handover.</p>
             <form data-review-form>
               <div class="grid two">
                 <label class="field"><span>Realism score</span><input name="realismScore" type="number" min="0" max="100" step="1"></label>
@@ -93,6 +98,7 @@
 
           <section class="panel">
             <h2>Market visibility</h2>
+            <p class="admin-help">Choose which Tesla-related market cards appear to users on the Investments and Markets screens.</p>
             <form data-market-form>
               <div class="grid four" data-admin-market-controls></div>
               <button class="btn primary" style="margin-top: 16px">Update Markets</button>
@@ -101,6 +107,7 @@
 
           <section class="panel">
             <h2>Users</h2>
+            <p class="admin-help">Review registered users, verification status, balances, and use Adjust or Positions to update their account view.</p>
             <div class="table-wrap">
               <table>
                 <thead><tr><th>User</th><th>Status</th><th>Deposits</th><th>Active</th><th>Profit</th><th>Available</th><th>Control</th></tr></thead>
@@ -112,8 +119,9 @@
           <section class="panel hidden" data-position-editor>
             <h2>Active investment editor</h2>
             <p class="muted" data-position-user>Choose a user to manage positions.</p>
+            <p class="admin-help">Positions entered here appear in the user's Active Investments table and update the active investment total.</p>
             <form data-position-form>
-              <label class="field"><span>Positions JSON</span><textarea name="positions" data-position-json></textarea></label>
+              <label class="field"><span>Positions JSON</span><small>Edit symbols, allocation amounts, profit/loss, status, and settlement dates. Keep the JSON format intact.</small><textarea name="positions" data-position-json></textarea></label>
               <button class="btn primary">Save Positions</button>
               <button class="btn" type="button" data-close-position-editor>Close</button>
             </form>
@@ -121,6 +129,7 @@
 
           <section class="panel">
             <h2>Deposit requests</h2>
+            <p class="admin-help">Approve, reject, or review user deposit submissions after checking the reference and amount.</p>
             <div class="table-wrap">
               <table>
                 <thead><tr><th>ID</th><th>User</th><th>Amount</th><th>Status</th><th>Update</th></tr></thead>
@@ -131,6 +140,7 @@
 
           <section class="panel">
             <h2>Withdrawal requests</h2>
+            <p class="admin-help">Track withdrawal requests and update status after reviewing the destination and account balance.</p>
             <div class="table-wrap">
               <table>
                 <thead><tr><th>ID</th><th>User</th><th>Amount</th><th>Status</th><th>Update</th></tr></thead>
@@ -141,6 +151,7 @@
 
           <section class="panel">
             <h2>Support messages</h2>
+            <p class="admin-help">Move support messages through pending, in review, resolved, or closed as the issue is handled.</p>
             <div class="table-wrap">
               <table>
                 <thead><tr><th>ID</th><th>Sender</th><th>Message</th><th>Status</th><th>Update</th></tr></thead>
