@@ -1,12 +1,19 @@
 let me = null;
 let config = null;
+let activity = [];
+let markets = [];
 
 const refreshDashboard = async () => {
   try {
-    const [meResult, configResult] = await Promise.all([api("/api/me"), api("/api/config")]);
+    const [meResult, configResult, marketResult] = await Promise.all([api("/api/me"), api("/api/config"), api("/api/markets")]);
     me = meResult.user;
+    activity = meResult.activity || [];
     config = configResult;
+    markets = marketResult.markets || [];
     renderAccount();
+    renderDashboardMarkets();
+    renderPositions();
+    renderTransactions();
   } catch {
     window.location.href = "/login/";
   }
@@ -24,6 +31,8 @@ const renderAccount = () => {
   document.querySelector("[data-wallet-asset]").textContent = config.wallet.asset || "Asset not set";
   document.querySelector("[data-wallet-network]").textContent = config.wallet.network || "Network not set";
   document.querySelector("[data-wallet-address]").textContent = config.wallet.address || "Admin has not configured a wallet yet.";
+  document.querySelector("[data-position-count]").textContent = `${(me.positions || []).length} positions`;
+  document.querySelector("[data-activity-count]").textContent = `${activity.length} records`;
 };
 
 const showPanel = (name) => {
@@ -31,8 +40,63 @@ const showPanel = (name) => {
   document.querySelector(`[data-panel="${name}"]`)?.classList.remove("hidden");
 };
 
+const renderDashboardMarkets = () => {
+  const grid = document.querySelector("[data-dashboard-market-grid]");
+  if (!grid) return;
+  const watchlist = me.watchlist || [];
+  grid.innerHTML = markets.map((market) => window.renderMarketCard(market, true, watchlist.includes(market.symbol))).join("");
+  grid.querySelectorAll("[data-watch-symbol]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      try {
+        const result = await api("/api/watchlist", {
+          method: "POST",
+          body: JSON.stringify({ symbol: button.dataset.watchSymbol })
+        });
+        me.watchlist = result.watchlist;
+        renderDashboardMarkets();
+      } catch (error) {
+        setStatus("[data-deposit-status]", error.message, false);
+      }
+    });
+  });
+};
+
+const renderPositions = () => {
+  const rows = document.querySelector("[data-position-rows]");
+  if (!rows) return;
+  const positions = me.positions || [];
+  rows.innerHTML = positions.map((position) => `
+    <tr>
+      <td class="mono">${position.symbol}</td>
+      <td>${position.name || position.symbol}</td>
+      <td>${money(position.amount)}</td>
+      <td class="${Number(position.pnl || 0) >= 0 ? "up" : "down"}">${money(position.pnl)}</td>
+      <td>${position.status || "Active"}</td>
+      <td>${position.settlementDate || "-"}</td>
+    </tr>
+  `).join("") || `<tr><td colspan="6">No active investments yet.</td></tr>`;
+};
+
+const renderTransactions = () => {
+  const rows = document.querySelector("[data-transaction-rows]");
+  if (!rows) return;
+  rows.innerHTML = activity.map((item) => `
+    <tr>
+      <td>${item.createdAt ? new Date(item.createdAt).toLocaleString() : "-"}</td>
+      <td>${item.type}</td>
+      <td>${item.asset || "-"}</td>
+      <td>${money(item.amount)}</td>
+      <td>${item.status}</td>
+      <td>${item.reference || "-"}</td>
+    </tr>
+  `).join("") || `<tr><td colspan="6">No transactions yet.</td></tr>`;
+};
+
 document.querySelectorAll("[data-open-panel]").forEach((button) => {
-  button.addEventListener("click", () => showPanel(button.dataset.openPanel));
+  button.addEventListener("click", (event) => {
+    event.preventDefault();
+    showPanel(button.dataset.openPanel);
+  });
 });
 
 document.querySelector("[data-copy-wallet]")?.addEventListener("click", async () => {

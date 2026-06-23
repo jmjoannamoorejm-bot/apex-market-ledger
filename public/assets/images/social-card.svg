@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#090d14"/>
+      <stop offset="0.55" stop-color="#151b24"/>
+      <stop offset="1" stop-color="#e31937"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <path d="M120 450 320 120l210 330h-98l-41-70H255l-39 70h-96Z" fill="#fff" opacity=".94"/>
+  <path d="M590 210h470v30H590zm0 75h340v30H590zm0 75h410v30H590z" fill="#22d3ee" opacity=".8"/>
+  <text x="590" y="480" fill="#fff" font-family="Arial, sans-serif" font-size="58" font-weight="700">Apex Market Ledger</text>
+  <text x="594" y="535" fill="#dfe7f3" font-family="Arial, sans-serif" font-size="28">TSLA market intelligence and investor account visibility</text>
+</svg>

@@ -476,6 +476,32 @@ h3 {
   margin-right: 8px;
 }
 
+.phone-field {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--white);
+  overflow: hidden;
+}
+
+.phone-field span {
+  display: grid;
+  place-items: center;
+  align-self: stretch;
+  padding: 0 12px;
+  background: rgba(9, 13, 20, 0.06);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-weight: 800;
+}
+
+.phone-field input {
+  border: 0;
+  border-radius: 0;
+}
+
 .field textarea {
   min-height: 110px;
   resize: vertical;
@@ -541,6 +567,75 @@ td {
   border-bottom: 1px solid var(--line);
   text-align: left;
   vertical-align: top;
+}
+
+.market-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 420px;
+}
+
+.market-price {
+  margin: 8px 0 2px;
+  font-family: var(--mono);
+  font-weight: 900;
+  font-size: 1.5rem;
+}
+
+.spark-down {
+  background: linear-gradient(135deg, rgba(227, 25, 55, 0.2), rgba(9, 13, 20, 0.08));
+  transform: scaleY(-1);
+}
+
+.market-meta {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.market-meta div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 7px;
+}
+
+.market-meta dt {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.market-meta dd {
+  margin: 0;
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.sentiment {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(9, 13, 20, 0.1);
+  margin: auto 0 14px;
+}
+
+.sentiment span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--red), var(--blue));
+}
+
+.market-toggle {
+  display: grid;
+  gap: 6px;
+}
+
+.market-toggle input {
+  width: auto;
 }
 
 .hidden {

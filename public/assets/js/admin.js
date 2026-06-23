@@ -1,6 +1,7 @@
 const loginBox = document.querySelector("[data-admin-login]");
 const adminApp = document.querySelector("[data-admin-app]");
 let adminState = null;
+let activePositionUserId = null;
 
 const loadAdmin = async () => {
   try {
@@ -21,6 +22,13 @@ const renderAdmin = () => {
   document.querySelector("[data-admin-deposits]").textContent = overview.pendingDeposits;
   document.querySelector("[data-admin-withdrawals]").textContent = overview.pendingWithdrawals;
   document.querySelector("[data-admin-balance]").textContent = money(overview.totalBalance);
+  document.querySelector("[data-backup-configured]").textContent = adminState.backupStatus?.configured ? "Yes" : "No";
+  document.querySelector("[data-backup-save]").textContent = adminState.backupStatus?.lastSaveAt ? new Date(adminState.backupStatus.lastSaveAt).toLocaleString() : "-";
+  document.querySelector("[data-backup-restore]").textContent = adminState.backupStatus?.lastRestoreAt ? new Date(adminState.backupStatus.lastRestoreAt).toLocaleString() : "-";
+  document.querySelector("[data-backup-error]").textContent = adminState.backupStatus?.lastError || "-";
+  document.querySelector("[name='realismScore']").value = adminState.projectReview?.realismScore ?? 85;
+  document.querySelector("[name='notes']").value = adminState.projectReview?.notes || "";
+  document.querySelector("[name='updatedAt']").value = adminState.projectReview?.updatedAt ? new Date(adminState.projectReview.updatedAt).toLocaleString() : "Not reviewed";
 
   document.querySelector("[name='walletEnabled']").checked = adminState.wallet.enabled;
   document.querySelector("[name='asset']").value = adminState.wallet.asset || "";
@@ -34,6 +42,7 @@ const renderAdmin = () => {
   });
 
   renderUsers();
+  renderMarketControls();
   renderRecords("deposits", adminState.deposits, "[data-admin-deposit-rows]");
   renderRecords("withdrawals", adminState.withdrawals, "[data-admin-withdrawal-rows]");
   renderRecords("supportMessages", adminState.supportMessages, "[data-admin-message-rows]");
@@ -48,7 +57,10 @@ const renderUsers = () => {
       <td>${money(user.balances.activeInvestments)}</td>
       <td>${money(user.balances.realizedProfit)}</td>
       <td>${money(user.balances.availableBalance)}</td>
-      <td><button class="btn" data-edit-user="${user.id}">Adjust</button></td>
+      <td>
+        <button class="btn" data-edit-user="${user.id}">Adjust</button>
+        <button class="btn" data-edit-positions="${user.id}">Positions</button>
+      </td>
     </tr>
   `).join("");
   document.querySelector("[data-admin-user-rows]").innerHTML = rows || `<tr><td colspan="7">No users yet.</td></tr>`;
@@ -56,6 +68,21 @@ const renderUsers = () => {
   document.querySelectorAll("[data-edit-user]").forEach((button) => {
     button.addEventListener("click", () => editUser(button.dataset.editUser));
   });
+  document.querySelectorAll("[data-edit-positions]").forEach((button) => {
+    button.addEventListener("click", () => openPositionEditor(button.dataset.editPositions));
+  });
+};
+
+const renderMarketControls = () => {
+  const wrap = document.querySelector("[data-admin-market-controls]");
+  if (!wrap) return;
+  wrap.innerHTML = (adminState.markets || []).map((market) => `
+    <label class="card market-toggle">
+      <input type="checkbox" name="${market.symbol}" ${market.visible ? "checked" : ""}>
+      <strong>${market.symbol}</strong>
+      <span class="muted">${market.name}</span>
+    </label>
+  `).join("");
 };
 
 const renderRecords = (type, records, selector) => {
@@ -67,10 +94,7 @@ const renderRecords = (type, records, selector) => {
       <td>${record.status}</td>
       <td>
         <select data-status-type="${type}" data-status-id="${record.id}">
-          <option value="pending">pending</option>
-          <option value="approved">approved</option>
-          <option value="rejected">rejected</option>
-          <option value="closed">closed</option>
+          ${["pending", "approved", "rejected", "in_review", "resolved", "closed"].map((status) => `<option value="${status}" ${record.status === status ? "selected" : ""}>${status}</option>`).join("")}
         </select>
       </td>
     </tr>
@@ -85,6 +109,18 @@ const renderRecords = (type, records, selector) => {
       loadAdmin();
     });
   });
+};
+
+const openPositionEditor = (id) => {
+  const user = adminState.users.find((item) => item.id === id);
+  if (!user) return;
+  activePositionUserId = id;
+  document.querySelector("[data-position-editor]").classList.remove("hidden");
+  document.querySelector("[data-position-user]").textContent = `Editing positions for ${user.firstName || ""} ${user.lastName || ""} (${user.email})`;
+  const positions = user.positions?.length ? user.positions : [
+    { symbol: "TSLA", name: "Tesla Inc.", amount: 0, pnl: 0, status: "Active", settlementDate: "" }
+  ];
+  document.querySelector("[data-position-json]").value = JSON.stringify(positions, null, 2);
 };
 
 const editUser = async (id) => {
@@ -163,6 +199,66 @@ document.querySelector("[data-system-form]")?.addEventListener("submit", async (
   } catch (error) {
     setStatus("[data-admin-status]", error.message, false);
   }
+});
+
+document.querySelector("[data-market-form]")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const form = new FormData(event.currentTarget);
+  const visibility = {};
+  (adminState.markets || []).forEach((market) => {
+    visibility[market.symbol] = form.get(market.symbol) === "on";
+  });
+  try {
+    await api("/api/admin/markets", {
+      method: "PATCH",
+      body: JSON.stringify({ visibility })
+    });
+    setStatus("[data-admin-status]", "Market visibility updated.");
+    loadAdmin();
+  } catch (error) {
+    setStatus("[data-admin-status]", error.message, false);
+  }
+});
+
+document.querySelector("[data-review-form]")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const form = new FormData(event.currentTarget);
+  try {
+    await api("/api/admin/review", {
+      method: "PATCH",
+      body: JSON.stringify({
+        realismScore: form.get("realismScore"),
+        notes: form.get("notes")
+      })
+    });
+    setStatus("[data-admin-status]", "Project review saved.");
+    loadAdmin();
+  } catch (error) {
+    setStatus("[data-admin-status]", error.message, false);
+  }
+});
+
+document.querySelector("[data-position-form]")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (!activePositionUserId) return;
+  try {
+    const positions = JSON.parse(document.querySelector("[data-position-json]").value || "[]");
+    await api(`/api/admin/users/${activePositionUserId}/positions`, {
+      method: "PATCH",
+      body: JSON.stringify({ positions })
+    });
+    setStatus("[data-admin-status]", "Active investments updated.");
+    document.querySelector("[data-position-editor]").classList.add("hidden");
+    activePositionUserId = null;
+    loadAdmin();
+  } catch (error) {
+    setStatus("[data-admin-status]", error.message, false);
+  }
+});
+
+document.querySelector("[data-close-position-editor]")?.addEventListener("click", () => {
+  document.querySelector("[data-position-editor]").classList.add("hidden");
+  activePositionUserId = null;
 });
 
 loadAdmin();

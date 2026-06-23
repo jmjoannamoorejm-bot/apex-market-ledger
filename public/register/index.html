@@ -4,10 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Register / Apex Market Ledger</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/assets/css/styles.css">
   </head>
   <body>
-    <header class="nav"><div class="shell nav-inner"><a class="brand" href="/"><span class="brand-mark">AL</span><span>Apex Market Ledger</span></a><nav class="nav-links"><a href="/">Home</a><a href="/about/">About</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a></nav><div class="nav-actions"><a class="btn" href="/login/">Login</a></div></div></header>
+    <header class="nav"><div class="shell nav-inner"><a class="brand" href="/"><span class="brand-mark">AL</span><span>Apex Market Ledger</span></a><nav class="nav-links"><a href="/">Home</a><a href="/investments/">Investments</a><a href="/about/">About</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a></nav><div class="nav-actions"><a class="btn" href="/login/">Login</a></div></div></header>
     <main class="form-shell">
       <div class="shell">
         <form class="form-card" data-register-form>
@@ -20,12 +21,21 @@
           <label class="field"><span>Email</span><input name="email" type="email" required></label>
           <label class="field"><span>Password</span><input name="password" type="password" minlength="8" required></label>
           <div class="grid two">
-            <label class="field"><span>Phone</span><input name="phone"></label>
-            <label class="field"><span>Country</span><input name="country"></label>
+            <label class="field">
+              <span>Country</span>
+              <select name="country" data-country-select required></select>
+            </label>
+            <label class="field">
+              <span>Phone</span>
+              <div class="phone-field">
+                <span data-phone-prefix>+1</span>
+                <input name="phone" inputmode="tel" autocomplete="tel" placeholder="Phone number" required>
+              </div>
+            </label>
           </div>
           <div class="grid two">
             <label class="field"><span>Account type</span><select name="accountType"><option>Individual</option><option>Business</option><option>Trust</option></select></label>
-            <label class="field"><span>Investment goal</span><select name="investmentGoal"><option>Growth</option><option>Income</option><option>Capital preservation</option><option>Research access</option></select></label>
+            <label class="field"><span>Investment goal</span><select name="investmentGoal"><option>Growth</option><option>Income</option><option>Capital preservation</option><option>Technology allocation</option></select></label>
           </div>
           <button class="btn primary full">Create Account</button>
           <p class="status" data-auth-status></p>
@@ -33,6 +43,7 @@
       </div>
     </main>
     <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/market-data.js"></script>
     <script src="/assets/js/auth.js"></script>
   </body>
 </html>

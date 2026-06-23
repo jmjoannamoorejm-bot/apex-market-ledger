@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dashboard / Apex Market Ledger</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/assets/css/styles.css">
   </head>
   <body>
@@ -11,7 +12,10 @@
       <div class="shell nav-inner">
         <a class="brand" href="/"><span class="brand-mark">AL</span><span>Apex Market Ledger</span></a>
         <nav class="nav-links">
-          <a href="/dashboard/">Dashboard</a>
+          <a href="/dashboard/">Overview</a>
+          <a href="/investments/">Investments</a>
+          <a href="/dashboard/#markets" data-open-panel="markets">Markets</a>
+          <a href="/dashboard/#transactions" data-open-panel="transactions">Transactions</a>
           <a href="/contact/">Support</a>
         </nav>
         <div class="nav-actions"><a class="btn" href="/admin/">Admin</a></div>
@@ -34,13 +38,53 @@
         </section>
 
         <div class="toolbar">
+          <button class="btn" data-open-panel="overview">Overview</button>
+          <button class="btn" data-open-panel="markets">Markets</button>
+          <button class="btn" data-open-panel="portfolio">Portfolio</button>
           <button class="btn primary" data-open-panel="deposit">Add Funds</button>
           <button class="btn" data-open-panel="withdraw">Withdraw</button>
           <button class="btn" data-open-panel="kyc">KYC Review</button>
+          <button class="btn" data-open-panel="transactions">Transactions</button>
           <button class="btn" data-open-panel="verify">Verify Email</button>
         </div>
 
-        <section class="panel" data-panel="deposit">
+        <section class="panel" data-panel="overview">
+          <div class="grid three">
+            <article>
+              <span class="eyebrow">TSLA Watch</span>
+              <h3>Market direction</h3>
+              <p class="muted">Track EV, AI, battery, and technology themes from the Markets tab.</p>
+            </article>
+            <article>
+              <span class="eyebrow">Active positions</span>
+              <h3 data-position-count>0 positions</h3>
+              <p class="muted">Admin-managed portfolio allocations appear in your Portfolio tab.</p>
+            </article>
+            <article>
+              <span class="eyebrow">Account movement</span>
+              <h3 data-activity-count>0 records</h3>
+              <p class="muted">Deposits and withdrawals are logged in Transaction History.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel hidden" data-panel="markets" id="markets">
+          <h2>Markets</h2>
+          <p class="muted">Popular Tesla-related equities, ETFs, and digital-asset proxies.</p>
+          <div class="grid four" data-dashboard-market-grid></div>
+        </section>
+
+        <section class="panel hidden" data-panel="portfolio">
+          <h2>Active investments</h2>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Symbol</th><th>Name</th><th>Amount</th><th>P/L</th><th>Status</th><th>Settlement</th></tr></thead>
+              <tbody data-position-rows></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel hidden" data-panel="deposit">
           <h2>Add funds</h2>
           <div class="wallet-box">
             <strong>Deposit Wallet</strong>
@@ -89,6 +133,16 @@
           <p class="status" data-withdraw-status></p>
         </section>
 
+        <section class="panel hidden" data-panel="transactions" id="transactions">
+          <h2>Transaction history</h2>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Date</th><th>Type</th><th>Asset</th><th>Amount</th><th>Status</th><th>Reference</th></tr></thead>
+              <tbody data-transaction-rows></tbody>
+            </table>
+          </div>
+        </section>
+
         <section class="panel hidden" data-panel="kyc">
           <h2>KYC review</h2>
           <form data-kyc-form>
@@ -127,6 +181,7 @@
     </main>
 
     <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/investments.js"></script>
     <script src="/assets/js/dashboard.js"></script>
   </body>
 </html>

@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin / Apex Market Ledger</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/assets/css/styles.css">
   </head>
   <body>
@@ -69,6 +70,36 @@
           </div>
 
           <section class="panel">
+            <h2>Backup status</h2>
+            <div class="grid four">
+              <article class="card"><span class="eyebrow">Configured</span><h3 data-backup-configured>No</h3></article>
+              <article class="card"><span class="eyebrow">Last save</span><h3 data-backup-save>-</h3></article>
+              <article class="card"><span class="eyebrow">Last restore</span><h3 data-backup-restore>-</h3></article>
+              <article class="card"><span class="eyebrow">Last error</span><h3 data-backup-error>-</h3></article>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h2>Project review score</h2>
+            <form data-review-form>
+              <div class="grid two">
+                <label class="field"><span>Realism score</span><input name="realismScore" type="number" min="0" max="100" step="1"></label>
+                <label class="field"><span>Last updated</span><input name="updatedAt" disabled></label>
+              </div>
+              <label class="field"><span>Admin review notes</span><textarea name="notes"></textarea></label>
+              <button class="btn primary">Save Review</button>
+            </form>
+          </section>
+
+          <section class="panel">
+            <h2>Market visibility</h2>
+            <form data-market-form>
+              <div class="grid four" data-admin-market-controls></div>
+              <button class="btn primary" style="margin-top: 16px">Update Markets</button>
+            </form>
+          </section>
+
+          <section class="panel">
             <h2>Users</h2>
             <div class="table-wrap">
               <table>
@@ -76,6 +107,16 @@
                 <tbody data-admin-user-rows></tbody>
               </table>
             </div>
+          </section>
+
+          <section class="panel hidden" data-position-editor>
+            <h2>Active investment editor</h2>
+            <p class="muted" data-position-user>Choose a user to manage positions.</p>
+            <form data-position-form>
+              <label class="field"><span>Positions JSON</span><textarea name="positions" data-position-json></textarea></label>
+              <button class="btn primary">Save Positions</button>
+              <button class="btn" type="button" data-close-position-editor>Close</button>
+            </form>
           </section>
 
           <section class="panel">

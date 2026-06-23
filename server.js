@@ -29,9 +29,23 @@ const MIME = {
   ".ico": "image/x-icon"
 };
 
+const MARKET_ITEMS = [
+  { symbol: "TSLA", name: "Tesla Inc.", sector: "EV / Energy", price: 219.74, change: 2.14, range: "212.10 - 224.80", volume: "91.2M", sentiment: 78, risk: "High", event: "EV delivery momentum and energy storage margin focus." },
+  { symbol: "NVDA", name: "NVIDIA Corp.", sector: "AI Infrastructure", price: 142.31, change: 1.06, range: "139.20 - 144.70", volume: "185.4M", sentiment: 74, risk: "High", event: "AI accelerator demand remains a key technology-market driver." },
+  { symbol: "QQQ", name: "Invesco QQQ Trust", sector: "Technology ETF", price: 486.15, change: 0.38, range: "481.40 - 488.90", volume: "42.8M", sentiment: 66, risk: "Medium", event: "Mega-cap technology breadth remains constructive." },
+  { symbol: "ARKK", name: "ARK Innovation ETF", sector: "Innovation ETF", price: 48.92, change: -0.72, range: "48.20 - 50.01", volume: "9.7M", sentiment: 51, risk: "High", event: "Innovation basket consolidates after strong momentum." },
+  { symbol: "LIT", name: "Global X Lithium & Battery Tech ETF", sector: "Battery Materials", price: 41.28, change: 0.84, range: "40.66 - 41.90", volume: "1.8M", sentiment: 61, risk: "Medium", event: "Battery materials stabilize on energy-storage demand." },
+  { symbol: "RIVN", name: "Rivian Automotive", sector: "EV Peer", price: 13.77, change: -1.35, range: "13.41 - 14.19", volume: "32.5M", sentiment: 44, risk: "High", event: "Production efficiency remains the market focus." },
+  { symbol: "LCID", name: "Lucid Group", sector: "EV Peer", price: 2.86, change: 0.42, range: "2.73 - 2.91", volume: "21.9M", sentiment: 39, risk: "High", event: "EV peer sentiment remains sensitive to delivery updates." },
+  { symbol: "BTC", name: "Bitcoin", sector: "Digital Asset", price: 64280, change: 1.01, range: "62,900 - 65,100", volume: "$31.4B", sentiment: 69, risk: "High", event: "Digital liquidity supports risk-asset appetite." },
+  { symbol: "SPY", name: "SPDR S&P 500 ETF", sector: "Broad Market ETF", price: 548.24, change: 0.22, range: "545.10 - 549.80", volume: "58.6M", sentiment: 62, risk: "Medium", event: "Broad market remains supported by earnings breadth." },
+  { symbol: "PANW", name: "Palo Alto Networks", sector: "Cybersecurity", price: 324.18, change: 0.57, range: "319.80 - 326.50", volume: "4.1M", sentiment: 64, risk: "Medium", event: "Cybersecurity demand remains tied to enterprise AI adoption." }
+];
+
 const state = loadDatabase();
 let backupTimer = null;
 let backupInFlight = false;
+let backupStatus = { configured: false, lastSaveAt: null, lastRestoreAt: null, lastError: null };
 
 function loadEnvFile(filePath) {
   if (!fs.existsSync(filePath)) return;
@@ -52,6 +66,12 @@ function defaultDatabase() {
     deposits: [],
     withdrawals: [],
     supportMessages: [],
+    marketVisibility: Object.fromEntries(MARKET_ITEMS.map((item) => [item.symbol, true])),
+    projectReview: {
+      realismScore: 85,
+      notes: "Ready for admin review.",
+      updatedAt: null
+    },
     wallet: {
       enabled: true,
       asset: "USDT",
@@ -148,6 +168,7 @@ async function getRemoteBackupFile() {
 }
 
 async function restoreRemoteBackup() {
+  backupStatus.configured = Boolean(githubBackupConfig());
   try {
     const file = await getRemoteBackupFile();
     if (!file || !file.content) return false;
@@ -156,9 +177,12 @@ async function restoreRemoteBackup() {
     Object.keys(state).forEach((key) => delete state[key]);
     Object.assign(state, { ...defaultDatabase(), ...restored });
     saveDatabase({ remote: false });
+    backupStatus.lastRestoreAt = new Date().toISOString();
+    backupStatus.lastError = null;
     console.log("Restored database from GitHub backup.");
     return true;
   } catch (error) {
+    backupStatus.lastError = error.message;
     console.warn(`GitHub backup restore skipped: ${error.message}`);
     return false;
   }
@@ -177,6 +201,7 @@ function scheduleRemoteBackup() {
 async function pushRemoteBackup() {
   if (backupInFlight || !githubBackupConfig()) return;
   backupInFlight = true;
+  backupStatus.configured = true;
   try {
     const config = githubBackupConfig();
     const current = await getRemoteBackupFile();
@@ -187,7 +212,12 @@ async function pushRemoteBackup() {
       content: Buffer.from(JSON.stringify(state, null, 2)).toString("base64"),
       ...(current?.sha ? { sha: current.sha } : {})
     });
+    backupStatus.lastSaveAt = new Date().toISOString();
+    backupStatus.lastError = null;
     console.log("Saved database to GitHub backup.");
+  } catch (error) {
+    backupStatus.lastError = error.message;
+    throw error;
   } finally {
     backupInFlight = false;
   }
@@ -300,8 +330,28 @@ function currentAdmin(req) {
 
 function publicUser(user) {
   if (!user) return null;
-  const { passwordHash, emailCode, withdrawalCode, ...safe } = user;
+  const { passwordHash, emailCode, withdrawalCode, passwordResetCode, ...safe } = user;
   return safe;
+}
+
+function visibleMarkets() {
+  const visibility = state.marketVisibility || {};
+  return MARKET_ITEMS.map((item, index) => ({
+    ...item,
+    visible: visibility[item.symbol] !== false,
+    trend: item.change >= 0 ? "up" : "down",
+    spark: [12, 18 + index, 15, 28 + index, 24, 34 + index, 31]
+  }));
+}
+
+function accountActivity(userId) {
+  const deposits = state.deposits
+    .filter((item) => item.userId === userId)
+    .map((item) => ({ id: item.id, type: "Deposit", asset: item.asset, amount: item.amount, status: item.status, reference: item.txReference || "-", createdAt: item.createdAt }));
+  const withdrawals = state.withdrawals
+    .filter((item) => item.userId === userId)
+    .map((item) => ({ id: item.id, type: "Withdrawal", asset: item.destination?.asset || item.method, amount: item.amount, status: item.status, reference: item.method, createdAt: item.createdAt }));
+  return [...deposits, ...withdrawals].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
 }
 
 function requireUser(req, res) {
@@ -400,12 +450,25 @@ async function handleApi(req, res) {
       });
     }
 
+    if (method === "GET" && url.pathname === "/api/markets") {
+      return json(res, 200, {
+        ok: true,
+        markets: visibleMarkets().filter((item) => item.visible),
+        updatedAt: new Date().toISOString()
+      });
+    }
+
     if (method === "POST" && url.pathname === "/api/register") {
       const body = await readBody(req);
       const email = String(body.email || "").trim().toLowerCase();
       const password = String(body.password || "");
+      const phone = String(body.phone || "").trim();
+      const digits = phone.replace(/\D/g, "");
       if (!email.includes("@") || password.length < 8) {
         return json(res, 400, { ok: false, error: "Valid email and 8+ character password required" });
+      }
+      if (digits.length < 7 || digits.length > 14) {
+        return json(res, 400, { ok: false, error: "Valid phone number required" });
       }
       if (state.users.some((user) => user.email === email)) {
         return json(res, 409, { ok: false, error: "Email already registered" });
@@ -416,7 +479,9 @@ async function handleApi(req, res) {
         firstName: String(body.firstName || "").trim(),
         lastName: String(body.lastName || "").trim(),
         email,
-        phone: String(body.phone || "").trim(),
+        phone,
+        phonePrefix: String(body.phonePrefix || "").trim(),
+        countryCode: String(body.countryCode || "").trim(),
         country: String(body.country || "").trim(),
         accountType: String(body.accountType || "Individual").trim(),
         investmentGoal: String(body.investmentGoal || "").trim(),
@@ -431,6 +496,8 @@ async function handleApi(req, res) {
           availableBalance: 0,
           activeInvestmentCount: 0
         },
+        watchlist: ["TSLA", "NVDA", "QQQ"],
+        positions: [],
         createdAt: new Date().toISOString()
       };
       state.users.push(user);
@@ -468,7 +535,29 @@ async function handleApi(req, res) {
     if (method === "GET" && url.pathname === "/api/me") {
       const user = requireUser(req, res);
       if (!user) return;
-      return json(res, 200, { ok: true, user: publicUser(user) });
+      return json(res, 200, { ok: true, user: publicUser(user), activity: accountActivity(user.id) });
+    }
+
+    if (method === "GET" && url.pathname === "/api/account/activity") {
+      const user = requireUser(req, res);
+      if (!user) return;
+      return json(res, 200, { ok: true, activity: accountActivity(user.id), positions: user.positions || [] });
+    }
+
+    if (method === "POST" && url.pathname === "/api/watchlist") {
+      const user = requireUser(req, res);
+      if (!user) return;
+      const body = await readBody(req);
+      const symbol = String(body.symbol || "").toUpperCase();
+      if (!MARKET_ITEMS.some((item) => item.symbol === symbol)) return json(res, 404, { ok: false, error: "Market symbol not found" });
+      user.watchlist = Array.isArray(user.watchlist) ? user.watchlist : [];
+      if (user.watchlist.includes(symbol)) {
+        user.watchlist = user.watchlist.filter((item) => item !== symbol);
+      } else {
+        user.watchlist.push(symbol);
+      }
+      saveDatabase();
+      return json(res, 200, { ok: true, watchlist: user.watchlist });
     }
 
     if (method === "POST" && url.pathname === "/api/email/send-code") {
@@ -612,6 +701,37 @@ async function handleApi(req, res) {
       return json(res, 201, { ok: true, message });
     }
 
+    if (method === "POST" && url.pathname === "/api/password/send-code") {
+      const body = await readBody(req);
+      const email = String(body.email || "").trim().toLowerCase();
+      const user = state.users.find((item) => item.email === email);
+      if (!user) return json(res, 200, { ok: true, emailDelivery: false });
+      const code = String(crypto.randomInt(100000, 999999));
+      user.passwordResetCode = { code, createdAt: new Date().toISOString() };
+      saveDatabase();
+      const delivery = await sendVerificationEmail(user.email, code, "password reset");
+      return json(res, 200, {
+        ok: true,
+        emailDelivery: delivery.sent,
+        devCode: process.env.NODE_ENV === "production" ? undefined : code
+      });
+    }
+
+    if (method === "POST" && url.pathname === "/api/password/reset") {
+      const body = await readBody(req);
+      const email = String(body.email || "").trim().toLowerCase();
+      const user = state.users.find((item) => item.email === email);
+      const password = String(body.password || "");
+      if (!user || !user.passwordResetCode || String(body.code || "").trim() !== user.passwordResetCode.code) {
+        return json(res, 400, { ok: false, error: "Valid reset code required" });
+      }
+      if (password.length < 8) return json(res, 400, { ok: false, error: "Password must be at least 8 characters" });
+      user.passwordHash = hashPassword(password);
+      user.passwordResetCode = null;
+      saveDatabase();
+      return json(res, 200, { ok: true });
+    }
+
     if (method === "POST" && url.pathname === "/api/admin/login") {
       const body = await readBody(req);
       const goodUser = String(body.username || "") === String(process.env.ADMIN_USERNAME || "admin");
@@ -628,6 +748,9 @@ async function handleApi(req, res) {
         overview: adminOverview(),
         wallet: state.wallet,
         system: state.system,
+        backupStatus: { ...backupStatus, configured: Boolean(githubBackupConfig()) },
+        markets: visibleMarkets(),
+        projectReview: state.projectReview || defaultDatabase().projectReview,
         users: state.users.map(publicUser),
         deposits: state.deposits,
         withdrawals: state.withdrawals,
@@ -680,6 +803,46 @@ async function handleApi(req, res) {
       if (body.kycStatus) user.kyc = { ...(user.kyc || {}), status: String(body.kycStatus) };
       saveDatabase();
       return json(res, 200, { ok: true, user: publicUser(user) });
+    }
+
+    const positionsMatch = url.pathname.match(/^\/api\/admin\/users\/([^/]+)\/positions$/);
+    if (method === "PATCH" && positionsMatch) {
+      if (!requireAdmin(req, res)) return;
+      const user = state.users.find((item) => item.id === positionsMatch[1]);
+      if (!user) return json(res, 404, { ok: false, error: "User not found" });
+      const body = await readBody(req);
+      user.positions = Array.isArray(body.positions) ? body.positions.map((position) => ({
+        symbol: String(position.symbol || "TSLA").toUpperCase(),
+        name: String(position.name || "").trim(),
+        amount: Number(position.amount || 0),
+        pnl: Number(position.pnl || 0),
+        status: String(position.status || "Active").trim(),
+        settlementDate: String(position.settlementDate || "").trim()
+      })) : [];
+      user.balances.activeInvestmentCount = user.positions.length;
+      user.balances.activeInvestments = user.positions.reduce((sum, position) => sum + Number(position.amount || 0), 0);
+      saveDatabase();
+      return json(res, 200, { ok: true, user: publicUser(user) });
+    }
+
+    if (method === "PATCH" && url.pathname === "/api/admin/markets") {
+      if (!requireAdmin(req, res)) return;
+      const body = await readBody(req);
+      state.marketVisibility = { ...(state.marketVisibility || {}), ...(body.visibility || {}) };
+      saveDatabase();
+      return json(res, 200, { ok: true, markets: visibleMarkets() });
+    }
+
+    if (method === "PATCH" && url.pathname === "/api/admin/review") {
+      if (!requireAdmin(req, res)) return;
+      const body = await readBody(req);
+      state.projectReview = {
+        realismScore: Math.max(0, Math.min(100, Number(body.realismScore || 0))),
+        notes: String(body.notes || "").trim(),
+        updatedAt: new Date().toISOString()
+      };
+      saveDatabase();
+      return json(res, 200, { ok: true, projectReview: state.projectReview });
     }
 
     const statusMatch = url.pathname.match(/^\/api\/admin\/(deposits|withdrawals|supportMessages)\/([^/]+)$/);
