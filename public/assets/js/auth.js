@@ -6,15 +6,27 @@ const phonePrefix = document.querySelector("[data-phone-prefix]");
 
 const selectedCountry = () => {
   const code = countrySelect?.value || "US";
-  return (window.APEX_COUNTRIES || []).find((country) => country[0] === code) || ["US", "United States", "+1", 10];
+  return (window.APEX_COUNTRIES || []).find((country) => country[0] === code) || ["US", "United States", "+1"];
 };
+
+const localeCountryCode = () => {
+  const locale = navigator.languages?.[0] || navigator.language || "";
+  try {
+    return new Intl.Locale(locale).region || "US";
+  } catch {
+    return locale.split("-")[1]?.toUpperCase() || "US";
+  }
+};
+
+const normalizedCallingCode = (prefix) => `+${String(prefix).replace(/\D/g, "")}`;
 
 const populateCountries = () => {
   if (!countrySelect || !window.APEX_COUNTRIES) return;
   countrySelect.innerHTML = window.APEX_COUNTRIES
     .map(([code, name, prefix]) => `<option value="${code}">${name} (${prefix})</option>`)
     .join("");
-  countrySelect.value = "US";
+  const localeCode = localeCountryCode();
+  countrySelect.value = window.APEX_COUNTRIES.some(([code]) => code === localeCode) ? localeCode : "US";
   phonePrefix.textContent = selectedCountry()[2];
 };
 
@@ -29,14 +41,16 @@ if (registerForm) {
     event.preventDefault();
     const body = Object.fromEntries(new FormData(registerForm).entries());
     const country = selectedCountry();
-    const digits = String(body.phone || "").replace(/\D/g, "");
-    if (!digits || digits.length < 7 || digits.length > 14) {
-      return setStatus("[data-auth-status]", "Enter a valid phone number using digits only.", false);
+    const nationalDigits = String(body.phone || "").replace(/\D/g, "");
+    const callingCode = normalizedCallingCode(country[2]);
+    const internationalDigits = `${callingCode.replace(/\D/g, "")}${nationalDigits}`;
+    if (nationalDigits.length < 4 || internationalDigits.length < 7 || internationalDigits.length > 15) {
+      return setStatus("[data-auth-status]", "Enter a valid national phone number. Do not repeat the country code.", false);
     }
     body.countryCode = country[0];
     body.country = country[1];
-    body.phonePrefix = country[2];
-    body.phone = `${country[2]} ${digits}`;
+    body.phonePrefix = callingCode;
+    body.phone = `+${internationalDigits}`;
     try {
       const result = await api("/api/register", {
         method: "POST",

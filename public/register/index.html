@@ -32,8 +32,9 @@
               <span>Phone</span>
               <div class="phone-field">
                 <span data-phone-prefix>+1</span>
-                <input name="phone" inputmode="tel" autocomplete="tel" placeholder="Phone number" required>
+                <input name="phone" type="tel" inputmode="tel" autocomplete="tel-national" maxlength="20" placeholder="National phone number" aria-describedby="phone-help" required>
               </div>
+              <small id="phone-help">Enter your number without the country calling code.</small>
             </label>
           </div>
           <div class="grid two">

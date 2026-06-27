@@ -7,6 +7,7 @@ AS|American Samoa|+1-684
 AD|Andorra|+376
 AO|Angola|+244
 AI|Anguilla|+1-264
+AQ|Antarctica|+672
 AG|Antigua and Barbuda|+1-268
 AR|Argentina|+54
 AM|Armenia|+374
@@ -27,6 +28,7 @@ BT|Bhutan|+975
 BO|Bolivia|+591
 BQ|Bonaire, Sint Eustatius and Saba|+599
 BA|Bosnia and Herzegovina|+387
+BV|Bouvet Island|+47
 BW|Botswana|+267
 BR|Brazil|+55
 IO|British Indian Ocean Territory|+246
@@ -77,6 +79,7 @@ FI|Finland|+358
 FR|France|+33
 GF|French Guiana|+594
 PF|French Polynesia|+689
+TF|French Southern Territories|+262
 GA|Gabon|+241
 GM|Gambia|+220
 GE|Georgia|+995
@@ -94,6 +97,7 @@ GN|Guinea|+224
 GW|Guinea-Bissau|+245
 GY|Guyana|+592
 HT|Haiti|+509
+HM|Heard Island and McDonald Islands|+672
 HN|Honduras|+504
 HK|Hong Kong|+852
 HU|Hungary|+36
@@ -171,6 +175,7 @@ PG|Papua New Guinea|+675
 PY|Paraguay|+595
 PE|Peru|+51
 PH|Philippines|+63
+PN|Pitcairn Islands|+64
 PL|Poland|+48
 PT|Portugal|+351
 PR|Puerto Rico|+1-787
@@ -201,6 +206,7 @@ SI|Slovenia|+386
 SB|Solomon Islands|+677
 SO|Somalia|+252
 ZA|South Africa|+27
+GS|South Georgia and the South Sandwich Islands|+500
 KR|South Korea|+82
 SS|South Sudan|+211
 ES|Spain|+34
@@ -226,6 +232,7 @@ TM|Turkmenistan|+993
 TC|Turks and Caicos Islands|+1-649
 TV|Tuvalu|+688
 VI|U.S. Virgin Islands|+1-340
+UM|United States Minor Outlying Islands|+1
 UG|Uganda|+256
 UA|Ukraine|+380
 AE|United Arab Emirates|+971

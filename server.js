@@ -464,10 +464,12 @@ async function handleApi(req, res) {
       const password = String(body.password || "");
       const phone = String(body.phone || "").trim();
       const digits = phone.replace(/\D/g, "");
+      const countryCode = String(body.countryCode || "").trim().toUpperCase();
+      const phonePrefix = String(body.phonePrefix || "").trim();
       if (!email.includes("@") || password.length < 8) {
         return json(res, 400, { ok: false, error: "Valid email and 8+ character password required" });
       }
-      if (digits.length < 7 || digits.length > 14) {
+      if (!/^[A-Z]{2}$/.test(countryCode) || !/^\+\d{1,6}$/.test(phonePrefix) || !phone.startsWith("+") || digits.length < 7 || digits.length > 15) {
         return json(res, 400, { ok: false, error: "Valid phone number required" });
       }
       if (state.users.some((user) => user.email === email)) {
@@ -480,8 +482,8 @@ async function handleApi(req, res) {
         lastName: String(body.lastName || "").trim(),
         email,
         phone,
-        phonePrefix: String(body.phonePrefix || "").trim(),
-        countryCode: String(body.countryCode || "").trim(),
+        phonePrefix,
+        countryCode,
         country: String(body.country || "").trim(),
         accountType: String(body.accountType || "Individual").trim(),
         investmentGoal: String(body.investmentGoal || "").trim(),
