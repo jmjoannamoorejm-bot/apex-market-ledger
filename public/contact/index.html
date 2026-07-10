@@ -31,10 +31,11 @@
     <script>
       document.querySelector("[data-contact-form]").addEventListener("submit", async (event) => {
         event.preventDefault();
+        const form = event.currentTarget;
         try {
-          await api("/api/support", { method: "POST", body: JSON.stringify(Object.fromEntries(new FormData(event.currentTarget).entries())) });
+          await api("/api/support", { method: "POST", body: JSON.stringify(Object.fromEntries(new FormData(form).entries())) });
           setStatus("[data-contact-status]", "Message sent.");
-          event.currentTarget.reset();
+          form.reset();
         } catch (error) {
           setStatus("[data-contact-status]", error.message, false);
         }

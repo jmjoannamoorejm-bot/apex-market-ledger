@@ -118,10 +118,11 @@ document.querySelector("[data-send-email-code]")?.addEventListener("click", asyn
 
 document.querySelector("[data-verify-form]")?.addEventListener("submit", async (event) => {
   event.preventDefault();
+  const form = event.currentTarget;
   try {
     await api("/api/email/verify", {
       method: "POST",
-      body: JSON.stringify(Object.fromEntries(new FormData(event.currentTarget).entries()))
+      body: JSON.stringify(Object.fromEntries(new FormData(form).entries()))
     });
     setStatus("[data-verify-status]", "Email verified.");
     refreshDashboard();
@@ -132,10 +133,11 @@ document.querySelector("[data-verify-form]")?.addEventListener("submit", async (
 
 document.querySelector("[data-kyc-form]")?.addEventListener("submit", async (event) => {
   event.preventDefault();
+  const form = event.currentTarget;
   try {
     await api("/api/kyc", {
       method: "POST",
-      body: JSON.stringify(Object.fromEntries(new FormData(event.currentTarget).entries()))
+      body: JSON.stringify(Object.fromEntries(new FormData(form).entries()))
     });
     setStatus("[data-kyc-submit-status]", "KYC submitted for review.");
     refreshDashboard();
@@ -146,13 +148,14 @@ document.querySelector("[data-kyc-form]")?.addEventListener("submit", async (eve
 
 document.querySelector("[data-deposit-form]")?.addEventListener("submit", async (event) => {
   event.preventDefault();
+  const form = event.currentTarget;
   try {
     await api("/api/deposits", {
       method: "POST",
-      body: JSON.stringify(Object.fromEntries(new FormData(event.currentTarget).entries()))
+      body: JSON.stringify(Object.fromEntries(new FormData(form).entries()))
     });
     setStatus("[data-deposit-status]", "Deposit request submitted for admin review.");
-    event.currentTarget.reset();
+    form.reset();
   } catch (error) {
     setStatus("[data-deposit-status]", error.message, false);
   }
@@ -168,23 +171,29 @@ document.querySelector("[data-send-withdrawal-code]")?.addEventListener("click",
   }
 });
 
-document.querySelector("[name='method']")?.addEventListener("change", (event) => {
-  document.querySelector("[data-bank-fields]").classList.toggle("hidden", event.target.value !== "bank");
-  document.querySelector("[data-crypto-fields]").classList.toggle("hidden", event.target.value !== "crypto");
-});
+const syncWithdrawalFields = () => {
+  const method = document.querySelector("[name='method']")?.value || "crypto";
+  document.querySelector("[data-bank-fields]")?.classList.toggle("hidden", method !== "bank");
+  document.querySelector("[data-crypto-fields]")?.classList.toggle("hidden", method !== "crypto");
+};
+
+document.querySelector("[name='method']")?.addEventListener("change", syncWithdrawalFields);
 
 document.querySelector("[data-withdraw-form]")?.addEventListener("submit", async (event) => {
   event.preventDefault();
+  const form = event.currentTarget;
   try {
     await api("/api/withdrawals", {
       method: "POST",
-      body: JSON.stringify(Object.fromEntries(new FormData(event.currentTarget).entries()))
+      body: JSON.stringify(Object.fromEntries(new FormData(form).entries()))
     });
     setStatus("[data-withdraw-status]", "Withdrawal request submitted.");
-    event.currentTarget.reset();
+    form.reset();
+    syncWithdrawalFields();
   } catch (error) {
     setStatus("[data-withdraw-status]", error.message, false);
   }
 });
 
+syncWithdrawalFields();
 refreshDashboard();
