@@ -26,7 +26,10 @@
           <div class="grid two">
             <label class="field">
               <span>Country</span>
+              <input name="countrySearch" data-country-input list="country-options" autocomplete="country-name" placeholder="Search country, code, or calling prefix">
+              <datalist id="country-options" data-country-options></datalist>
               <select name="country" data-country-select required></select>
+              <small>Type examples: China, Taiwan, CN, TW, +86, +886. The full country list is also available in the dropdown.</small>
             </label>
             <label class="field">
               <span>Phone</span>
