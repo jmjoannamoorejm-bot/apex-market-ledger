@@ -2,9 +2,6 @@ const registerForm = document.querySelector("[data-register-form]");
 const loginForm = document.querySelector("[data-login-form]");
 const resetForm = document.querySelector("[data-reset-form]");
 const countrySelect = document.querySelector("[data-country-select]");
-const countryInput = document.querySelector("[data-country-input]");
-const countryOptions = document.querySelector("[data-country-options]");
-const phonePrefix = document.querySelector("[data-phone-prefix]");
 
 const countriesFromSelect = () =>
   Array.from(countrySelect?.options || [])
@@ -33,85 +30,28 @@ const localeCountryCode = () => {
 
 const normalizedCallingCode = (prefix) => `+${String(prefix).replace(/\D/g, "")}`;
 
-const countryLabel = ([code, name, prefix]) => `${name} (${code}, ${prefix})`;
-
-const syncCountryFields = () => {
-  const country = selectedCountry();
-  if (countryInput) countryInput.value = countryLabel(country);
-  if (phonePrefix) phonePrefix.textContent = country[2];
-};
-
-const syncPhonePrefix = () => {
-  if (phonePrefix) phonePrefix.textContent = selectedCountry()[2];
-};
-
-const findCountry = (query) => {
-  const value = String(query || "").trim().toLowerCase();
-  if (!value) return null;
-  const compact = value.replace(/\s+/g, " ");
-  const digits = value.replace(/\D/g, "");
-  return countrySource().find(([code, name, prefix]) => {
-    const codeValue = code.toLowerCase();
-    const nameValue = name.toLowerCase();
-    const prefixDigits = String(prefix).replace(/\D/g, "");
-    return (
-      codeValue === compact ||
-      nameValue === compact ||
-      countryLabel([code, name, prefix]).toLowerCase() === compact ||
-      (compact.length >= 2 && nameValue.includes(compact)) ||
-      (digits && prefixDigits === digits)
-    );
-  });
-};
-
 const populateCountries = () => {
   if (!countrySelect) return;
   const countries = countrySource();
   countrySelect.innerHTML = countries
     .map(([code, name, prefix]) => `<option value="${code}" data-name="${name}" data-prefix="${prefix}">${name} (${prefix})</option>`)
     .join("");
-  if (countryOptions) {
-    countryOptions.innerHTML = countries
-      .map((country) => `<option value="${countryLabel(country)}"></option>`)
-      .join("");
-  }
   const localeCode = localeCountryCode();
   countrySelect.value = countries.some(([code]) => code === localeCode) ? localeCode : "US";
-  syncCountryFields();
 };
 
 populateCountries();
-
-countrySelect?.addEventListener("change", () => {
-  syncCountryFields();
-});
-
-countryInput?.addEventListener("input", () => {
-  const country = findCountry(countryInput.value);
-  if (!country || !countrySelect) return;
-  countrySelect.value = country[0];
-  syncPhonePrefix();
-});
-
-countryInput?.addEventListener("blur", () => {
-  const country = findCountry(countryInput.value);
-  if (!country || !countrySelect) return;
-  countrySelect.value = country[0];
-  syncCountryFields();
-});
 
 if (registerForm) {
   registerForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const body = Object.fromEntries(new FormData(registerForm).entries());
-    const typedCountry = findCountry(countryInput?.value);
-    if (typedCountry && countrySelect) countrySelect.value = typedCountry[0];
     const country = selectedCountry();
     const nationalDigits = String(body.phone || "").replace(/\D/g, "");
     const callingCode = normalizedCallingCode(country[2]);
     const internationalDigits = `${callingCode.replace(/\D/g, "")}${nationalDigits}`;
     if (nationalDigits.length < 4 || internationalDigits.length < 7 || internationalDigits.length > 15) {
-      return setStatus("[data-auth-status]", "Enter a valid national phone number. Do not repeat the country code.", false);
+      return setStatus("[data-auth-status]", "Enter a valid phone number.", false);
     }
     body.countryCode = country[0];
     body.country = country[1];

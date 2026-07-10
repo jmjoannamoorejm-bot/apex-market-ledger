@@ -26,8 +26,6 @@
           <div class="grid two">
             <label class="field">
               <span>Country</span>
-              <input name="countrySearch" data-country-input list="country-options" autocomplete="country-name" placeholder="Search country, code, or calling prefix">
-              <datalist id="country-options" data-country-options></datalist>
               <select name="country" data-country-select required>
                 <option value="AF" data-name="Afghanistan" data-prefix="+93">Afghanistan (+93)</option>
                 <option value="AX" data-name="Aland Islands" data-prefix="+358">Aland Islands (+358)</option>
@@ -280,15 +278,10 @@
                 <option value="ZM" data-name="Zambia" data-prefix="+260">Zambia (+260)</option>
                 <option value="ZW" data-name="Zimbabwe" data-prefix="+263">Zimbabwe (+263)</option>
               </select>
-              <small>Type examples: China, Taiwan, CN, TW, +86, +886. The full country list is also available in the dropdown.</small>
             </label>
             <label class="field">
               <span>Phone</span>
-              <div class="phone-field">
-                <span data-phone-prefix>+1</span>
-                <input name="phone" type="tel" inputmode="tel" autocomplete="tel-national" maxlength="20" placeholder="National phone number" aria-describedby="phone-help" required>
-              </div>
-              <small id="phone-help">Enter your number without the country calling code.</small>
+              <input name="phone" type="tel" inputmode="tel" autocomplete="tel-national" maxlength="20" placeholder="Phone number" required>
             </label>
           </div>
           <div class="grid two">
@@ -300,8 +293,8 @@
         </form>
       </div>
     </main>
-    <script src="/assets/js/app.js?v=country-250"></script>
-    <script src="/assets/js/market-data.js?v=country-250"></script>
-    <script src="/assets/js/auth.js?v=country-250"></script>
+    <script src="/assets/js/app.js?v=country-simple-250"></script>
+    <script src="/assets/js/market-data.js?v=country-simple-250"></script>
+    <script src="/assets/js/auth.js?v=country-simple-250"></script>
   </body>
 </html>
