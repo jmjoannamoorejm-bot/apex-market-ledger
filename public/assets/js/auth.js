@@ -6,9 +6,20 @@ const countryInput = document.querySelector("[data-country-input]");
 const countryOptions = document.querySelector("[data-country-options]");
 const phonePrefix = document.querySelector("[data-phone-prefix]");
 
+const countriesFromSelect = () =>
+  Array.from(countrySelect?.options || [])
+    .map((option) => [option.value, option.dataset.name || option.textContent.replace(/\s*\([^)]*\)\s*$/, ""), option.dataset.prefix || ""])
+    .filter(([code, name, prefix]) => code && name && prefix);
+
+const countrySource = () => {
+  const embedded = countriesFromSelect();
+  const external = Array.isArray(window.APEX_COUNTRIES) ? window.APEX_COUNTRIES : [];
+  return external.length >= embedded.length ? external : embedded;
+};
+
 const selectedCountry = () => {
   const code = countrySelect?.value || "US";
-  return (window.APEX_COUNTRIES || []).find((country) => country[0] === code) || ["US", "United States", "+1"];
+  return countrySource().find((country) => country[0] === code) || ["US", "United States", "+1"];
 };
 
 const localeCountryCode = () => {
@@ -39,7 +50,7 @@ const findCountry = (query) => {
   if (!value) return null;
   const compact = value.replace(/\s+/g, " ");
   const digits = value.replace(/\D/g, "");
-  return (window.APEX_COUNTRIES || []).find(([code, name, prefix]) => {
+  return countrySource().find(([code, name, prefix]) => {
     const codeValue = code.toLowerCase();
     const nameValue = name.toLowerCase();
     const prefixDigits = String(prefix).replace(/\D/g, "");
@@ -54,17 +65,18 @@ const findCountry = (query) => {
 };
 
 const populateCountries = () => {
-  if (!countrySelect || !window.APEX_COUNTRIES) return;
-  countrySelect.innerHTML = window.APEX_COUNTRIES
-    .map(([code, name, prefix]) => `<option value="${code}">${name} (${prefix})</option>`)
+  if (!countrySelect) return;
+  const countries = countrySource();
+  countrySelect.innerHTML = countries
+    .map(([code, name, prefix]) => `<option value="${code}" data-name="${name}" data-prefix="${prefix}">${name} (${prefix})</option>`)
     .join("");
   if (countryOptions) {
-    countryOptions.innerHTML = window.APEX_COUNTRIES
+    countryOptions.innerHTML = countries
       .map((country) => `<option value="${countryLabel(country)}"></option>`)
       .join("");
   }
   const localeCode = localeCountryCode();
-  countrySelect.value = window.APEX_COUNTRIES.some(([code]) => code === localeCode) ? localeCode : "US";
+  countrySelect.value = countries.some(([code]) => code === localeCode) ? localeCode : "US";
   syncCountryFields();
 };
 
